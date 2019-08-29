@@ -1,0 +1,471 @@
+* System Setup
+* Packages
+ly -> Display Manager
+exa
+bat
+fzf
+ripgrep
+
+* Tips
+** Make bootable USB
+#+BEGIN_SRC sh
+dd bs=4M if=path/to/iso of=/dev/sdb status=progress oflag=sync
+#+END_SRC
+
+** Lookup keycodes
+Only x11 server system!
+#+BEGIN_SRC sh
+xev | awk -F'[ )]+' '/^KeyPress/ { a[NR+2] } NR in a { printf "%-3s %s\n", $5, $8 }'
+#+END_SRC
+
+** Connect to wifi adhoc with wpa_supplicant
+#+BEGIN_SRC shell
+ip link # Get interface name
+ip link set INTERFACE up # Start wifi interface
+set +o history
+wpa_supplicant -B -i INTERFACE -c <(wpa_passphrase SSID PASSPHRASE) &
+set -o history
+#+END_SRC
+*** Enable dhcpcd
+At this step you should be connected to the router but not the internet.
+=dhcpcd INTERFACE=
+Thats it. You should be now able to ping around
+=ping -c3 abc.de=
+
+** Connect to wifi with wpa_cli
+#+BEGIN_SRC shell
+ip link # Get interface name
+ip link set INTERFACE up # Start wifi interface
+
+wpa_supplicant -B -i INTERFACE -c <(echo "ctrl_interface=/run/wpa_supplicant update_config=1")
+wpa_cli -i INTERFACE
+# In repl
+> scan
+> scan_results
+If you see the network
+> add_network
+> set_network 0 ssid "Network Name"
+> set_network 0 psk "Network Password"
+> enable_network 0
+> save_config
+# Ctrl-c
+#+END_SRC
+
+** Switch tty sessions in arch
+Sometimes you may want to switch between sessions.
+I personally like to run a *root session* next to *my user session*.
+Use =alt + left/right= or =ctrl + alt + f1-f7=
+
+* Install Arch with UEFI
+** Boot into arch EFI
+Before install you should disable *Secure Boot* in the BIOS!
+If you make a dualboot with Windows you should also disable *Fast Start-up*
+in Windows directly (Selectable in in Power Options)
+
+*** Check if UEFI is supported
+=/sys/firmware/efi/efivars=
+
+*** Boot up Arch
+On startup press F12 and select Arch
+
+** Change Keyboard
+=loadkeys de=
+
+** Show efi entries
+=efibootmgr=
+Shows boot order of efi entries. Can be edited.
+There might be already a Windows Boot Manager on dual boot.
+We will add a Linux Boot Manager later on.
+
+** Inspect file system
+=fdisk -l=
+If you plan a dual boot there should be already some partitions on */dev/sdX*
+Look for an existing EFI partition!
+
+=lsblk=
+This comment will show you all connected devices. Also unmounted ones.
+
+First create your HOME and ROOT. See further down for EFI.
+
+** Create additional partition (HOME and ROOT)
+#+BEGIN_SRC shell
+gdisk /dev/sdX
+n # new partition
+# Enter partition number
+# Enter start of partition
++20G # This is the size I use for OS partitions; Should be more then enough)
+8300 # Enter linux file system hex code
+p # Print new table
+w # write
+y # Yes
+#+END_SRC
+
+You may /repeat/ those steps for another OS partion or HOME partition.
+*IMPORTANT:* Choose the size of your partition conservatively. It is much more easy the increase
+the size of an partition in the aftermath than to decrease it.
+
+*** Make file system
+#+BEGIN_SRC shell
+mkfs.ext4 -L OS1 /dev/sdX<number> # I name my partition generic OS<number>
+mkfs.ext4 -L HOME /dev/sdX<number>
+#+END_SRC
+
+
+** Create EFI partition
+On dual boot this partiton should be already in place. Otherwise continue to create it.
+*** Windows DUAL Boot
+Windows will most likely bring 3 partitions to the table:
+1. Windows recovery partition
+2. Microsoft reserved
+3. Microsoft basic data (which is the main partition)
+
+To make place for our new system you should decrease the size of the main
+partition. Boot up Windows and look out for the *Disk Management* program.
+
+After freeing space you should definitely should change the size of the
+*EFI partition*. Windows typically only comes with a tiny 100MB partition.
+This is rather small especially if linux kernels are collecting up.
+
+**** Steps to the new EFI partion
+Since resizing is not possible we need to delete the partition and
+set it up again. At this point you should already have another EXT4
+(ROOT or/and HOME) partition.
+
+1. Back up old EFI
+#+BEGIN_SRC shell
+mkdir ~/efi
+mkdir ~/home
+mount /dev/sdX<efi> ~/efi
+mount /dev/sdX<home> ~/home
+mkdir ~/home/efibackup
+rsync -avh ~/efi/ ~/home/efibackup # <- Slash after efi matters!
+umount ~/efi
+#+END_SRC
+
+2. Delete EFI
+#+BEGIN_SRC shell
+gdisk /dev/sdX
+d # Delete
+<no> # EFI partition number
+w # Write
+y # yes
+#+END_SRC
+
+3. Set EFI up again
+#+BEGIN_SRC shell
+gdisk /dev/sdX
+n # new partition
+# Enter partition number
+# Enter start of partition
++555M # This is the size I use for EFI partitions
+ef00 # Enter EFI hex code
+p # Print new table
+w # write
+y # Yes
+
+# Format FAT 32
+mkfs.vfat -F 32 -n EFI /dev/sdX<efi>
+#+END_SRC
+
+4. Move EFI enries back
+Like in step 1 mount all neccessary partitons and rsync/mv the EFI entries back.
+
+*** Set up a new EFI
+#+BEGIN_SRC shell
+gdisk /dev/sdX
+n # new partition
+# Enter partition number
+# Enter start of partition
++555M # This is the size I use for EFI partitions
+ef00 # Enter EFI hex code
+p # Print new table
+w # write
+y # Yes
+
+# Format FAT 32
+mkfs.vfat -F 32 -n EFI /dev/sdX<efi>
+#+END_SRC
+
+
+** Continue with installation
+By now you should have all neccessary partions in place and formatted the right way.
+For this step you need an internet connection. If you can't plug an ethernet cable,
+continue with an adhoc wpa_supplicant connection (written in [[Tips][Tips]])
+*** Mounting
+#+BEGIN_SRC shell
+mount /dev/sdX<root> /mnt
+mkdir /mnt/boot
+mount /dev/sdX<efi> /mnt/boot
+pacstrap /mnt base base-devel sudo wpa_supplicant # (plus any other package of choice)
+#+END_SRC
+
+*** Pacstrap, fstab and boot loader setup
+#+BEGIN_SRC shell
+pacstrap /mnt base wpa_supplicant # (plus any other package of choice)
+genfstab -Lp /mnt >> /mnt/etc/fstab
+#+END_SRC
+
+Checking the fstab file you should see the /dev/sdX<efi> partition
+is listed as static volume
+
+*** Arch chroot
+Now that the basic setup is done we can change root into the system and finishing the setup
+#+BEGIN_SRC shell
+arch-chroot /mnt
+bootctl install # or <update> for reinstall
+#+END_SRC
+
+This will generate the basic boot options
+
+*** Boot loader
+#+BEGIN_SRC shell
+cat > /boot/loader/loader.conf << __EOF__
+default arch
+timeout 3
+editor 0
+__EOF__
+#+END_SRC
+
+Which refers to entries>arch.conf
+#+BEGIN_SRC shell
+cat > /boot/loader/entries/arch.conf << __EOF__
+title Arch Linux
+linux /vmlinuz-linux
+initrd /initramfs-linux.img
+options root=LABEL=OS1 rw # <-
+__EOF__
+#+END_SRC
+
+*Important:* The label has to match the label set in the mkfs command.
+Here I use /OS1/!
+
+*** Finish setup
+#+BEGIN_SRC shell
+passwd # Optional
+exit
+reboot
+#+END_SRC
+
+* Optimize SSD
+Based on this wonderful blogpost
+https://easylinuxtipsproject.blogspot.com/p/ssd.html
+** Noatime
+Change *relatime* to *noatime* in /etc/fstab.
+** Fstrim on a daily base
+Clean journaling to protect ssd.
+#+BEGIN_SRC shell
+mkdir /etc/systemd/system/fstrim.timer.d
+cat > /etc/systemd/system/fstrim.timer.d/override.conf << __EOF__
+[Timer]
+OnCalendar=
+OnCalendar=daily
+__EOF__
+systemctl start fstrim.timer
+systemctl enable fstrim.timer
+systemctl cat fstrim.timer # Just to check what up with the timer
+#+END_SRC
+** Limiting swap wear
+=cat /proc/sys/vm/swappiness=
+If this is *60* or so you should cut it down to 1.
+#+BEGIN_SRC shell
+cat > /etc/sysctl.conf << __EOF__
+# Reduce swappiness
+vm.swappiness=1
+__EOF__
+#+END_SRC
+** Limiting firefox and/or Chrome chattiness
+See article linked in beggining of section
+
+* Config Arch
+Check /systemd/ service with:
+=systemctl status <whatever>.<service>=
+
+*** Networking
+If you plan to use WIFI and like solutions than
+using /wpa_supplicant/ with *systemd-networkd* is a perfect fit.
+
+For me if proves to be enough.
+
+You need 3 services to get you running:
+1. systemd-networkd
+2. systemd-resolved
+3. wpa_supplicant
+
+**** Systemd-Networkd
+This implicitely allowing the INTERFACE to use dhcp
+#+BEGIN_SRC shell
+cat > /etc/systemd/network/11-whatever-wireless.network << __EOF__
+[Match]
+Name=INTERFACE
+[Network]
+DHCP=yes
+__EOF__
+systemctl enable systemd-networkd
+#+END_SRC
+
+**** Systemd-Resolved
+Further we must instruct systemd-networkd to
+resolve the systems DNS.
+#+BEGIN_SRC shell
+systemctl start systemd-resolved.service
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+systemctl enable systemd-resolved.service
+#+END_SRC
+
+**** WPA_supplicant
+The last piece of the puzzle is wpa to manage our connections, handling authorization, establishing connections...
+#+BEGIN_SRC shell
+cat > /etc/wpa_supplicant/wpa_supplicant-INTERFACE.conf << __EOF__
+# First some statements needed by the wpa_cli
+ctrl_interface=/run/wpa_supplicant
+ctrl_interface_group=wheel
+update_config=1
+__EOF__
+
+systemctl enable wpa_supplicant@INTERFACE.service
+#+END_SRC
+
+Naming the file really matters here => wpa_supplicant-INTERFACE.conf
+
+This file will be the main configuration for our network.
+We can add a new network with *wpa_passphase*
+
+_Example_:
+#+BEGIN_SRC shell
+set +o history
+wpa_passphrase "SSID" "PSK" >> /etc/wpa_supplicant/wpa_supplicant-INTERFACE.conf
+set -o history
+#+END_SRC
+
+Thats all you need to add a new network!
+=reboot=
+And networking should work just fine!
+
+*** Set up mirrorlist, locales, etc
+Post installation you may set locals. Other programs will refer to it with when setting language and so on.
+Head over to
+
+=vim /etc/locale.gen=
+and uncomment wanted locales
+Followed by
+=locale-gen=
+
+Further you may set the LANG variable accordingly
+#+BEGIN_SRC shell
+cat > /etc/locale.conf << __EOF__
+LANG=en_US.UTF-8
+__EOF__
+#+END_SRC
+or any other lang
+
+To shrink the mirrorlist, which may be useful if you just want
+to pull updates from a nearby repository you can head over to
+
+=vim /etc/pacman.d/mirrorlist=
+Just place your top 5 mirrors on the top.
+You may not need to edit the full list.
+
+
+*** Add user
+Now finally, arch is ready and has a stable internet connection.
+Go on and add a user
+#+BEGIN_SRC shell
+useradd foo
+passwd foo # Password
+cat /etc/passwd | grep foo # User should be there
+#+END_SRC
+_Example:_
+*foo:x:1000:1000:/home/foo:/bin/bash*
+
+First number after name is assigned group. At default the only group
+a user is assigned, is his "own group". We will change that in a minute.
+
+Next the the number entries *home directory*, typically /home/foo
+As a root, you should ensure the directory is present.
+
+#+BEGIN_SRC shell
+mkdir /home/foo
+chown foo /home/foo
+chgrp foo /home/foo
+#+END_SRC
+
+Change to the user with:
+=su - foo=
+And check if you are foo:
+=whoami=
+
+The user still has no rights. As a next step we might assign some
+right through groups.
+All groups are listed in /etc/group
+
+**** Sudoer
+If you want a *sodoer* lets assign the user to the wheel group (has to be done by root):
+#+BEGIN_SRC shell
+usermod -a -G wheel foo # Assign foo to wheel
+groups foo # Is user on wheel?
+visudo
+# uncomment wheel group line:
+# %wheel ALL=(ALL) ALL
+#+END_SRC
+Now we have a fully usable sodoer on board!
+
+*** Package manager
+Having a user we can now build the package manager
+**** YAY
+This is a good package manager. But take the bin to avoid all the go lang cluttering
+https://aur.archlinux.org/packages/yay-bin/
+
+Download snapshot to build this manually!
+#+BEGIN_SRC shell
+su - foo # Change to user first!
+tar -xvzf <(curl https://...tar.gz)
+cd yay-bin
+makepkg -s
+sudo pacman -U *xz
+yay -S yay-bin # I reinstall yay-bin afterwards with yay. Dont know if needed.
+#+END_SRC
+
+And this is how we install yay!
+
+**** NIX
+TODO
+
+*** Neo keyboad layout
+https://aur.archlinux.org/kbd-neo.git
+=yay -S kbd-neo=
+
+Now, you can either activate per tty session
+=loadkeys neo=
+or make it persistent with setting
+#+BEGIN_SRC shell
+su # Need to be admin
+cat > /etc/vconsole.conf << __EOF__
+KEYMAP=neo
+__EOF__
+#+END_SRC
+
+* Nixos install
+NixOS does not conflict with other other boot options
+Once you have your partitions ready
+1. efi -> fat32
+2. root -> ext4
+optional: swap, home
+and formatted right you are ready to go!
+
+#+BEGIN_SRC shell
+mount /dev/sdX<nixos> /mnt
+mkdir /mnt/boot
+mount /dev/sdX<efi> /mnt/boot
+nixos-generate-config --root /mnt
+#+END_SRC
+
+Edit the
+/mnt/etc/nixos/configuration.nix
+according to your needs!
+
+This will finally install nixos on your system:
+=nixos-install=
+
+The only edit i did after install was to adapt the
+/boot/loader/loader.conf
+to boot arch on default. Thats it!
