@@ -1,5 +1,8 @@
 # SSH
 _ssh/
 
+# WPA supplicant
+_wpa_supplicant/
+
 # Git
 .git

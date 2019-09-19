@@ -1,6 +1,4 @@
-* System Setup
-* Packages
-ly -> Display Manager
+ ly -> Display Manager
 exa
 bat
 fzf
@@ -340,6 +338,31 @@ set -o history
 Thats all you need to add a new network!
 =reboot=
 And networking should work just fine!
+
+***** Optional: Change group of conf file
+Currently the *INTERFACE.conf file belongs to the root user. Editing in the daily usage
+is therefore a bit cumbersome.
+
+#+BEGIN_SRC shell
+chown root:network /etc/wpa_supplicant/wpa_supplicant-INTERFACE.conf
+# Later any user may assigned to the network group and can add a network
+usermod -G -a network USER
+#+END_SRC
+
+***** Optional: Delete unwanted interface
+The wpa_cli is a nice commandline tool to get information around networking.
+Without specifying a interface with `-i INTERFACE` it will choose the first one
+in alphabetical order.
+
+To make it short, sometimes there is an unwanted `p2p...` interface around which
+is chosen by wpa_cli. You may delete it.
+
+#+BEGIN_SRC shell
+cd /var/run/wpa_supplicant
+sudo rm p2p...
+#+END_SRC
+
+Now if you run wpa_cli things should work fine.
 
 *** Set up mirrorlist, locales, etc
 Post installation you may set locals. Other programs will refer to it with when setting language and so on.
