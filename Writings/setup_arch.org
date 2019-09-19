@@ -54,6 +54,102 @@ Sometimes you may want to switch between sessions.
 I personally like to run a *root session* next to *my user session*.
 Use =alt + left/right= or =ctrl + alt + f1-f7=
 
+* Disk Encryption
+This setup describes the encryption of a dedicated home/data partion. While most guides
+will decribe a full system encryption I found it more practical to seperate user data and system data.
+Especially if you plan to use multiboot environment (f.e. Arch and NixOS in my case) a can more
+easily share the user data beween multiple OSes.
+
+** Encrypt with LUKS
+Every newer linux kernel should be already eqipped for a encrypted setup.
+You may test it with
+=which cryptsetup=
+
+Otherwise you may install dm-crypt first.
+
+*** Create a partition
+gdisk /dev/sda may be your friend. Specify the size with *+20G* and choose Linux File System.
+You dont need to format it to ext4 yet!
+
+**** Encrypt the partition with luksFormat
+=cryptsetup -v -s 256 -h sha256 luksFormat /dev/sdaX=
+I find a 256 bit encryption more than enough. You could of course go with 512 if you like.
+
+**** Open the newly created partition with luksOpen
+=cryptsetup luksOpen /dev/sdaX <name>=
+
+Name could be anything like home or data.
+Now your OPEN partition is linked in /dev/mapper/<name> which is in fact a symlink too.
+
+**** Format to ext4 filesystem
+=mkfs.ext4 /dev/mapper/<name> -L <LABEL>=
+I always use UPPERCASE letter labels. Whether normal partition or encrypted ones
+
+At this point you could mount the FS like a normal FS with
+=mount /dev/mapper/<name> /whatevermountpoint=
+
+**** Closing a partion with luksClose
+=cryptsetup luksClose /dev/mapper/<name>=
+Don't need it but just for completition.
+
+*** Mounting on startup
+
+**** fstab
+Add the mount entry to you fstab
+#+BEGIN_SRC shell
+cat >> /etc/fstab <<__EOF__
+# By name
+/dev/mapper/<name> /<localname>  ext4 defaults 0 2
+# Or by label
+LABEL=HOME         /home         ext4 defaults 0 2
+#+END_SRC
+
+****  crypttab
+In analogy to fstab you need to add an entry to the crypttab file as well.
+#+BEGIN_SRC shell
+cat >> /etc/crypttab <<__EOF__
+# Name             Device         Password
+<name>             /dev/sdaX      none
+#+END_SRC
+
+None refers password. With this setup you will be prompted for the password on startup.
+A better, more convenient version (but also less safe) is to use a key file.
+
+** LUKS cryptfile setup
+You may check your partition with
+=cryptsetup luksDump /dev/sdaX=
+This will give you a bunch of information. Most notable here is the key slot information. You can store
+up to 8 keys or keyfiles for one partition. If you haven't set up anything to this point you will see
+one slot in use - which is your password set on encryption!
+
+*** Add another text password
+#+BEGIN_SRC shell
+cryptsetup luksAddKey /dev/sdaX
+#+END_SRC
+
+*** Add a cryptfile password
+#+BEGIN_SRC shell
+# Generate a random byte file at /root/part.key
+dd if=/dev/random bs=32 count=1 of=/root/part.key
+cryptsetup luksAddKey /dev/sdaX /root/part.key
+#+END_SRC
+
+Finally put/change reference in /etc/crypttab in order to auto encrypt on startup
+=<name> /dev/sdaX /root/part.key=
+
+After this you should be able to reboot you device without a hassle.
+
+** Optional: Move data into encrypted partition
+Very often you want to fill your initially encrypted partition with backed up data.
+To do so you could use rsync!
+
+#+BEGIN_SRC shell
+rsync -avh /mountedbackup/ ~/<encrypted_partition>
+# Slash after efi matters!
+#+END_SRC
+
+This includes even hidden files and preserves groups and user assignments.
+
 * Install Arch with UEFI
 ** Boot into arch EFI
 Before install you should disable *Secure Boot* in the BIOS!
@@ -349,16 +445,21 @@ chown root:network /etc/wpa_supplicant/wpa_supplicant-INTERFACE.conf
 usermod -G -a network USER
 #+END_SRC
 
-***** Optional: Delete unwanted interface
+***** Optional: Delete unwanted p2p interface
 The wpa_cli is a nice commandline tool to get information around networking.
 Without specifying a interface with `-i INTERFACE` it will choose the first one
 in alphabetical order.
 
-To make it short, sometimes there is an unwanted `p2p...` interface around which
-is chosen by wpa_cli. You may delete it.
+By default wpa_supplicant adds a p2p interface. It is possible to disable it in
+the conf file with
+-> p2p-disabled=1
+
+You may also delete the linkage to the interface:
 
 #+BEGIN_SRC shell
 cd /var/run/wpa_supplicant
+sudo rm p2p...
+cd /run/wpa_supplicant
 sudo rm p2p...
 #+END_SRC
 
@@ -387,7 +488,6 @@ to pull updates from a nearby repository you can head over to
 =vim /etc/pacman.d/mirrorlist=
 Just place your top 5 mirrors on the top.
 You may not need to edit the full list.
-
 
 *** Add user
 Now finally, arch is ready and has a stable internet connection.
@@ -464,6 +564,24 @@ or make it persistent with setting
 su # Need to be admin
 cat > /etc/vconsole.conf << __EOF__
 KEYMAP=neo
+__EOF__
+#+END_SRC
+
+*** Sound
+Install pulseaudio and alsa-utils
+Check if sound works:
+1. alsamixer
+2. Select sound card
+3. Increase sound
+
+If it does you might set the default sound card
+#+BEGIN_SRC shell
+# Check available sound cards with
+cat /proc/asound/cards
+# Set default number
+cat >> /etc/asound.cong <<__EOF__
+default.pcm.card 1
+default.ctl.card 1
 __EOF__
 #+END_SRC
 
