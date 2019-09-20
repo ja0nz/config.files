@@ -568,7 +568,7 @@ __EOF__
 #+END_SRC
 
 *** Sound
-Install pulseaudio and alsa-utils
+Install alsa-utils for the =alsamixer=
 Check if sound works:
 1. alsamixer
 2. Select sound card
@@ -579,7 +579,7 @@ If it does you might set the default sound card
 # Check available sound cards with
 cat /proc/asound/cards
 # Set default number
-cat >> /etc/asound.cong <<__EOF__
+cat >> /etc/asound.conf <<__EOF__
 default.pcm.card 1
 default.ctl.card 1
 __EOF__
@@ -602,7 +602,7 @@ nixos-generate-config --root /mnt
 
 Edit the
 /mnt/etc/nixos/configuration.nix
-according to your needs!
+according to yourc needs!
 
 This will finally install nixos on your system:
 =nixos-install=

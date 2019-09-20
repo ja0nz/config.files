@@ -15,3 +15,18 @@ alias ref="exec fish"
 
 # Alias groups
 alias groups="id (whoami)"
+
+# Alias alsamixer
+alias a="alsamixer"
+
+function mnt
+    lsblk
+    read -P "Specify partition prefix (/dev/XXX): " PART
+    thunar (udisksctl mount -b /dev/$PART | awk -F " at " '{print $2}' | cut -d. -f1)
+end
+
+function unmnt
+    lsblk
+    read -P "Specify partition prefix (/dev/XXX): " PART
+    udisksctl unmount -b /dev/$PART
+end
