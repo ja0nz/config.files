@@ -92,63 +92,16 @@ At this point you could mount the FS like a normal FS with
 =cryptsetup luksClose /dev/mapper/<name>=
 Don't need it but just for completition.
 
-*** Mounting on startup
+**** Test a keyslot
+As mentioned you can add up to 8 keys and/or keyfiles to one luks partition.
+If you run =luksDump= you can see the used key slots but it won't tell you which key is
+assigned to which slot. This can be tricky if you for example want to erase a specific
+keyfile but you dont know which slot it is.
 
-**** fstab
-Add the mount entry to you fstab
-#+BEGIN_SRC shell
-cat >> /etc/fstab <<__EOF__
-# By name
-/dev/mapper/<name> /<localname>  ext4 defaults 0 2
-# Or by label
-LABEL=HOME         /home         ext4 defaults 0 2
-#+END_SRC
+Therefore it is helpful to know that you can go the inverse way - test a slot if it can
+be opened with a specific keyfile/phrase.
 
-****  crypttab
-In analogy to fstab you need to add an entry to the crypttab file as well.
-#+BEGIN_SRC shell
-cat >> /etc/crypttab <<__EOF__
-# Name             Device         Password
-<name>             /dev/sdaX      none
-#+END_SRC
-
-None refers password. With this setup you will be prompted for the password on startup.
-A better, more convenient version (but also less safe) is to use a key file.
-
-** LUKS cryptfile setup
-You may check your partition with
-=cryptsetup luksDump /dev/sdaX=
-This will give you a bunch of information. Most notable here is the key slot information. You can store
-up to 8 keys or keyfiles for one partition. If you haven't set up anything to this point you will see
-one slot in use - which is your password set on encryption!
-
-*** Add another text password
-#+BEGIN_SRC shell
-cryptsetup luksAddKey /dev/sdaX
-#+END_SRC
-
-*** Add a cryptfile password
-#+BEGIN_SRC shell
-# Generate a random byte file at /root/part.key
-dd if=/dev/random bs=32 count=1 of=/root/part.key
-cryptsetup luksAddKey /dev/sdaX /root/part.key
-#+END_SRC
-
-Finally put/change reference in /etc/crypttab in order to auto encrypt on startup
-=<name> /dev/sdaX /root/part.key=
-
-After this you should be able to reboot you device without a hassle.
-
-** Optional: Move data into encrypted partition
-Very often you want to fill your initially encrypted partition with backed up data.
-To do so you could use rsync!
-
-#+BEGIN_SRC shell
-rsync -avh /mountedbackup/ ~/<encrypted_partition>
-# Slash after efi matters!
-#+END_SRC
-
-This includes even hidden files and preserves groups and user assignments.
+=cryptsetup luksOpen --test-passphrase --key-slot 0 /dev/sdaX && echo correct=
 
 * Install Arch with UEFI
 ** Boot into arch EFI
@@ -607,6 +560,8 @@ according to yourc needs!
 This will finally install nixos on your system:
 =nixos-install=
 
-The only edit i did after install was to adapt the
-/boot/loader/loader.conf
-to boot arch on default. Thats it!
+** Nixos commands
+nixos-rebuild switch
+nix-env --list-generations
+nix-collect-garbage
+nix search

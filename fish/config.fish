@@ -1,5 +1,12 @@
+# Startx on tty1
+if [ (tty) = "/dev/tty1" ]
+    startx && exit
+end
+
 set EDITOR vim
 alias vim=nvim
+set -x PATH $PATH ~/.cargo/bin
+set -x PATH $PATH ~/.yarn/bin
 
 # Add network
 function add_network
@@ -18,6 +25,10 @@ alias groups="id (whoami)"
 
 # Alias alsamixer
 alias a="alsamixer"
+
+# Alias slock lock display
+# Or use rofi
+alias s="slock"
 
 function mnt
     lsblk

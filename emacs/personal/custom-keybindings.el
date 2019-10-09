@@ -3,10 +3,10 @@
 (key-chord-define-global "GG" 'ace-window)
 (key-chord-define-global "hf" 'avy-goto-char) ;; any char
 (key-chord-define-global "hF" 'avy-goto-line) ;; any line
-(key-chord-define-global "ff" 'avy-pop-mark) ;; pop back to last mark
+(key-chord-define-global "qq" 'avy-pop-mark) ;; pop back to last mark
 (key-chord-define-global "kk" 'undo-tree-visualize)
 
 ;; Custom
 (global-set-key (kbd "C-c c") 'org-capture)
-(toggle-scroll-bar -1)
-
+(global-set-key (kbd "C-M-SPC") 'easy-mark)
+(global-set-key (kbd "s-SPC") 'easy-kill-help)

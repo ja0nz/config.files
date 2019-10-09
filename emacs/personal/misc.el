@@ -1,4 +1,9 @@
+(require 'use-package)
 
+(desktop-save-mode 1)
+(toggle-scroll-bar -1)
+
+;; Clojure
 (prelude-install-search-engine "CLJDocs" "https://clojuredocs.org/search?q=" "Search CLJ Docs: ")
 (add-hook 'clojure-mode-hook #'parinfer-mode)
 
@@ -18,3 +23,15 @@
   (progn
     (set-frame-font "Iosevka-12" nil t)))
 
+;; Purescript psc-ide
+;; TODO PSCI mode check
+(use-package psc-ide
+  :ensure t)
+
+(use-package purescript-mode
+  :ensure t
+  :hook (purescript-mode . (lambda ()
+                           (psc-ide-mode)
+                           (company-mode)
+                           (flycheck-mode)
+                           (turn-on-purescript-indentation))) )
