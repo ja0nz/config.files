@@ -7,6 +7,7 @@ set EDITOR vim
 alias vim=nvim
 set -x PATH $PATH ~/.cargo/bin
 set -x PATH $PATH ~/.yarn/bin
+set -x PATH $PATH ~/dhall/bin
 
 # Add network
 function add_network
@@ -41,3 +42,6 @@ function unmnt
     read -P "Specify partition prefix (/dev/XXX): " PART
     udisksctl unmount -b /dev/$PART
 end
+
+alias nextcloud_sync="rsync -a --delete -P -e 'ssh -p 54535' pi@192.168.178.25:/mnt/data/backup/ ~/cloud_backup/sync"
+
