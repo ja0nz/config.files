@@ -4,5 +4,8 @@ _ssh/
 # WPA supplicant
 _wpa_supplicant/
 
+# Fish
+_config.fish
+
 # Git
 .git
