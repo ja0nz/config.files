@@ -1,0 +1,3 @@
+#lang pollen
+∆define-meta[dog]{Roxy}
+∆(number->string (+ 1 1))

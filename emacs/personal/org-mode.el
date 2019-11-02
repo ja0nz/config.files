@@ -24,7 +24,7 @@
         org-gcal-file-alist '(("jan.peteler@gmail.com" .  "~/emacs/gcal.org"))))
 
 (use-package org
-  :hook (org-mode . (lambda () (org-bullets-mode) (org-indent-mode)))
+  :hook (org-mode . (lambda () (org-bullets-mode) (org-indent-mode) (turn-on-visual-line-mode)))
   :config
   (progn
     (setq org-agenda-files (list "~/emacs/gcal.org" "~/emacs/index.org")

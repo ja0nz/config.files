@@ -5,7 +5,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (purescript purescript-mode org-mode psc-ide org-bullets org-gcal tide geiser lsp-ui company-lsp json-mode js2-mode haskell-mode rainbow-mode elisp-slime-nav cider clojure-mode rainbow-delimiters key-chord company helm-ag helm-descbinds helm-projectile helm counsel swiper ivy exec-path-from-shell zop-to-char zenburn-theme which-key volatile-highlights undo-tree super-save smartrep smartparens projectile operate-on-number move-text magit imenu-anywhere hl-todo guru-mode gitignore-mode gitconfig-mode git-timemachine gist flycheck expand-region editorconfig easy-kill discover-my-major diminish diff-hl crux browse-kill-ring beacon anzu ace-window))))
+    (multi-term parinfer purescript purescript-mode org-mode psc-ide org-bullets org-gcal tide geiser lsp-ui company-lsp json-mode js2-mode haskell-mode rainbow-mode elisp-slime-nav cider clojure-mode rainbow-delimiters key-chord company helm-ag helm-descbinds helm-projectile helm counsel swiper ivy exec-path-from-shell zop-to-char zenburn-theme which-key volatile-highlights undo-tree super-save smartrep smartparens projectile operate-on-number move-text magit imenu-anywhere hl-todo guru-mode gitignore-mode gitconfig-mode git-timemachine gist flycheck expand-region editorconfig easy-kill discover-my-major diminish diff-hl crux browse-kill-ring beacon anzu ace-window))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

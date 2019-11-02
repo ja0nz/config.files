@@ -1,0 +1,106 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+@font-face {
+font-family: Fira-Mono;
+font-weight: normal;
+src: url("FiraMono-Regular.ttf");
+}
+
+
+@font-face {
+font-family: Fira-Mono;
+font-weight: bold;
+src: url("FiraMono-Bold.ttf");
+}
+
+
+body {
+    padding: 1em;
+    font-family: Fira-Mono, "Menlo", "Consolas", monospace;
+    width: 100%;
+    max-width: 800px;
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+
+row {
+    display: grid;
+    grid-template-columns: 6fr 1fr 1fr;
+}
+
+row + row {
+    border-top: 1px solid #ccc;
+}
+
+row > cell:first-child {
+    background: #f6f6f6;
+}
+
+row > heading, row > cell a {
+    padding: 4px 10px 12px 0px; /* T R B L */
+}
+
+row > heading {
+    padding-left: 10px;
+    padding-top: 0px;
+}
+
+
+cell {
+    display: inline-block;
+}
+
+
+/* in & out cells */
+cell + cell {
+    text-align: center;
+}
+
+cell a:hover {
+    background: #eee;
+}
+
+a {
+    text-decoration: none;
+    display: block;
+}
+
+
+heading a {
+    display: inline;
+    color: inherit;
+}
+
+heading a:hover {
+    background: inherit;
+}
+
+a, heading a:hover {
+    color: #6a6;
+}
+
+.file-ext {
+    color: #bbb;
+}
+
+.indent_1 { padding-left: calc(((1 - 1) * 18px) + 10px); }
+.indent_2 { padding-left: calc(((2 - 1) * 18px) + 10px); }
+.indent_3 { padding-left: calc(((3 - 1) * 18px) + 10px); }
+.indent_4 { padding-left: calc(((4 - 1) * 18px) + 10px); }
+.indent_5 { padding-left: calc(((5 - 1) * 18px) + 10px); }
+.indent_6 { padding-left: calc(((6 - 1) * 18px) + 10px); }
+.indent_7 { padding-left: calc(((7 - 1) * 18px) + 10px); }
+.indent_8 { padding-left: calc(((8 - 1) * 18px) + 10px); }
+.indent_9 { padding-left: calc(((9 - 1) * 18px) + 10px); }
+
+
+
+tt {
+    font-family: Fira-Mono, "Menlo", "Consolas", monospace;
+    font-size: 100%;
+    white-space: pre-wrap;
+}

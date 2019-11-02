@@ -1,0 +1,1 @@
+("7.4" racket ("79747bd2ee3a0c6067520e04258b55a4e817a529" . "afc984e53608efab6b27b9aa1f5cd3429a3ee93c") (collects #"info" #"main.rkt") (collects #"setup" #"infotab.rkt"))

@@ -3,20 +3,42 @@
 (desktop-save-mode 1)
 (toggle-scroll-bar -1)
 
+;; Multi term
+(use-package multi-term
+  :ensure t
+  :config (setq multi-term-program "/usr/bin/fish"))
+
 ;; Clojure
 (prelude-install-search-engine "CLJDocs" "https://clojuredocs.org/search?q=" "Search CLJ Docs: ")
-(add-hook 'clojure-mode-hook #'parinfer-mode)
+
+(use-package parinfer
+  :ensure t
+  :bind
+  (("C-," . parinfer-toggle-mode))
+  :config (setq parinfer-auto-switch-indent-mode t)
+  :init
+  (progn
+    (setq parinfer-extensions
+          '(defaults       ; should be included.
+             pretty-parens  ; different paren styles for different modes.
+             ;; lispy         ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
+             ;; paredit        ; Introduce some paredit commands.
+             ;; smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
+             smart-yank))   ; Yank behavior depend on mode.
+    (add-hook 'clojure-mode-hook #'parinfer-mode)
+    (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
+    (add-hook 'common-lisp-mode-hook #'parinfer-mode)
+    (add-hook 'scheme-mode-hook #'parinfer-mode)
+    (add-hook 'lisp-mode-hook #'parinfer-mode)))
 
 ;; Purescript
 (prelude-install-search-engine "Pursuit" "https://pursuit.purescript.org/search?q=" "Search Pursuit: ")
 
-;; Purescript psc-ide
-;; TODO PSCI mode check
-(use-package psc-ide
-  :ensure t)
-
+;; ensure psc-ide package
 (use-package purescript-mode
   :ensure t
+  :bind (("s-SPC" . company-complete))
+  :config (setq psc-ide-rebuild-on-save t)
   :hook (purescript-mode . (lambda ()
                              (psc-ide-mode)
                              (company-mode)
