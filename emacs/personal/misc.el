@@ -3,6 +3,15 @@
 (desktop-save-mode 1)
 (toggle-scroll-bar -1)
 
+;; Index function
+(defun idx/open-index ()
+  "Open index file"
+  (interactive)
+  (split-window-right)
+  (find-file "~/emacs/index.org"))
+
+(global-set-key (kbd "s-n") #'idx/open-index)
+
 ;; Multi term
 (use-package multi-term
   :ensure t

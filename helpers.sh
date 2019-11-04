@@ -3,7 +3,7 @@
 
 DECRYPT () {
     SRC=$(readlink -f "$1")
-    su - jan -c "gpg -d $SRC.tar.gz.gpg | tar xz"
+    gpg -d $SRC.tar.gz.gpg | tar xz
 }
 
 ENCRYPT () {
@@ -11,18 +11,19 @@ ENCRYPT () {
     tar -czf - $SRC | gpg -e --default-recipient-self > $SRC.tar.gz.gpg
 }
 
-LINK () { 
+LINK () {
     SRC=$(readlink -f "$1")
     DEST=$(readlink -f "$2")
-    
+
     mkdir -p $DEST
-    if [[ $(stat -c '%U' $DEST) != $(whoami) ]]; then
-	echo "Please run as root - permissions not sufficient to set link"
-	exit 1
+    if test -d $DEST && test -d $SRC; then
+        SRC=$SRC/*
     fi
 
-    if test -d $DEST && test -d $SRC; then
-	SRC=$SRC/*
+    if [[ $(stat -c '%U' $DEST) != $(whoami) ]]; then
+        echo "Not sufficient rights to set link in destination folder. Trying to 'sudo'"
+        sudo ln -sfn $SRC $DEST
+    else
+        ln -sfn $SRC $DEST
     fi
-    ln -sfn $SRC $DEST
 }

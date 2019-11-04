@@ -11,8 +11,8 @@
             (error nil)))
       (org-clock-in)))
 
-(global-set-key (kbd "C-c I") #'eos/org-clock-in)
-(global-set-key (kbd "C-c O") #'org-clock-out)
+(global-set-key (kbd "s-i") #'eos/org-clock-in)
+(global-set-key (kbd "s-u") #'org-clock-out)
 
 (use-package org-gcal
   :ensure t
