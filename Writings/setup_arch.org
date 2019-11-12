@@ -110,35 +110,35 @@ As TrueCrypt is an abandoned project you can choose from a variety of successors
 *** Install
 #+BEGIN_SRC bash
 yay -S tcplay
-sudo -s # Losetup demands sudo rights / or create a group change losetup chgrp
-losetup -f # Find usused loopback device -> f.e. /dev/loop0
+sudo -s # Most of the commands will require sudo rights; Just mounting as a user will work without
 #+END_SRC
 *** Create a container and encrypt
 #+BEGIN_SRC bash
+LOOPBACK=$(losetup -f)
 CONTAINER=enc.tc
 fallocate -l 20M $CONTAINER # 20M size
-losetup /dev/loop0 $CONTAINER
-tcplay -c -d /dev/loop0 -a whirlpool -b AES-256-XTS
+losetup $LOOPBACK $CONTAINER
+tcplay -c -d $LOOPBACK -a whirlpool -b AES-256-XTS
+# or *tcplay -c -d /dev/sdaX* if you want to encrypt a block device (tcrypt-system)
 #+END_SRC
 *** Mount and format container // root
 #+BEGIN_SRC bash
-tcplay -m $CONTAINER -d /dev/loop0
+tcplay -m $CONTAINER -d $LOOPBACK
 mkfs.ext4 /dev/mapper/$CONTAINER
 mount /dev/mapper/$CONTAINER /mnt/truecrypt/
 #+END_SRC
 To mount an existing container as *user (no root)*
 #+BEGIN_SRC bash
-losetup /dev/loop0 foo.tc
-tcplay -m $CONTAINER -d /dev/loop0
-mount -o nodev,nosuid /dev/mapper/$CONTAINER /home/you/truecrypt/ # ext4 partioned container!
+losetup $LOOPBACK foo.tc
+tcplay -m $CONTAINER -d $LOOPBACK
+mount -o nodev,nosuid /dev/mapper/$CONTAINER /home/you/truecrypt # ext4 partioned container!
 #+END_SRC
 *** Unset/Close the mounted container
 #+BEGIN_SRC bash
 umount /mnt/truecrypt
 dmsetup remove $CONTAINER
-losetup -d /dev/loop0
+losetup -d $LOOPBACK
 #+END_SRC
-***
 *** Optional: TC helper script for shorter command lining
 https://github.com/robertmuil/tcplay-helper
 Just some bash script wrappers to ease the use of tcplay
@@ -150,7 +150,7 @@ tcplay-helper open $CONTAINER <username> # mount as user /home/user/truecrypt
 tcplay-helper close $CONTAINER
 #+END_SRC
 *** Cryptsetup integration
-Since the cryptsetup format is widely popular, cryptsetup is supporting it too! This is a big advantage as for example mounting on boot works like as simple as the native luks format
+Since the truecrypt format is widely popular, cryptsetup is supporting it too! This is a big advantage as for example mounting on boot works like as simple as the native luks format
 #+BEGIN_SRC bash
 CONTAINER=enc.tc
 sudo cryptsetup tcryptDump $CONTAINER # comparable to luksDump
@@ -166,16 +166,27 @@ If you want to use a keyfile instead of passphrase you must specify it in the pa
 #+BEGIN_SRC bash
 cat >> /etc/crypttab << __EOF__
 # <name>        <device>                     <password>    <options>
-  homeLUKS      /dev/sdaX                    none
-  homeTC        /home/user/whatever.tc       /etc/key.file
+  luks          /dev/sdaX                    none
+  tccontainer   /container/whatever.tc       /etc/key.file tcrypt
+  tcsystem      /dev/sdaX                    none          tcrypt-system,noauto # There is tcrypt-hidden
 __EOF__
 #+END_SRC
+
+**** tcrypt-system
+Tcrypt system brings in some properties known from luks. There is a direct binding from block device to container.
+
+One example is that in some cases you want to postpone the mount itself. Adding *noauto* to options can do that for you. Later you can mount with =mount /dev/mapper/<name>. You need to set it to both in crypttab and fstab.
+
+In this case you may also enable the service
+=sudo systemctl enable systemd-cryptsetup@<name>=
+so you don't have to 'cryptsetup open' your block device manually.
+
 *** fstab
 After opening up the container/block device in crypttab you can mount it like a normal file system.
 But beware, you can not mount it with the physical address (like /dev/sdaX). You can either go over the
-1. mapper (/dev/mapper/<name>) this is the solution to go
-2. LABEL you gave in the mkfs.ext4 process
-3. UUID or PARTUUID -> run =blkid=
+1. mapper (/dev/mapper/<name>) this is the solution to go both in LUKS and tcrypt
+2. LABEL you gave in the mkfs.ext4 process (ONLY LUKS)
+3. UUID or PARTUUID -> run =blkid= (ONLY LUKS)
 
 #+BEGIN_SRC bash
 # <file system>        <dir>  <type> <options>  <dump> <pass>
