@@ -24,7 +24,11 @@
         org-gcal-file-alist '(("jan.peteler@gmail.com" .  "~/emacs/gcal.org"))))
 
 (use-package org
-  :hook (org-mode . (lambda () (org-bullets-mode) (org-indent-mode) (turn-on-visual-line-mode)))
+  :hook ((org-mode . (lambda () (org-bullets-mode) (org-indent-mode) (turn-on-visual-line-mode)))
+         (org-shiftup-final . windmove-up)
+         (org-shiftdown-final . windmove-down)
+         (org-shiftleft-final . windmove-left)
+         (org-shiftright-final . windmove-right))
   :config
   (progn
     (setq org-agenda-files (list "~/emacs/gcal.org" "~/emacs/index.org")
@@ -36,6 +40,6 @@
             ("t" "To Do Item" entry (file+headline "~/emacs/index.org" "To Do")
              "* TODO %?\n%u" :prepend t)
             ("n" "Note" entry (file+headline "~/emacs/index.org" "Notes")
-             "* %?\n%u" :prepend t)
-            ))
+             "* %?\n%u" :prepend t))
+          org-support-shift-select 'always)
     ))
