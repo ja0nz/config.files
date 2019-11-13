@@ -101,6 +101,10 @@ Therefore it is helpful to know that you can go the inverse way - test a slot if
 be opened with a specific keyfile/phrase.
 
 =cryptsetup luksOpen --test-passphrase --key-slot 0 /dev/sdaX && echo correct=
+**** Remove a key
+After determining which key to be removed, issue:
+=cryptsetup luksKillSlot /dev/sdaX 2=
+Where "2" stands for the key slot in question.
 
 ** Encrypt with truecrypt
 TrueCrypt is another trusted on-the-fly encryption program. It uses a containered approach to encrypt volumes. This means a more flexible approach compared to luks. Furthermore, there is no encryption header, which is regarded as a big plus as essentially nothing/no metadata can be derived from a container.
