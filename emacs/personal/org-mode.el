@@ -41,5 +41,7 @@
              "* TODO %?\n%u" :prepend t)
             ("n" "Note" entry (file+headline "~/emacs/index.org" "Notes")
              "* %?\n%u" :prepend t))
-          org-support-shift-select 'always)
+          org-support-shift-select 'always
+          org-refile-targets
+          '(("index.org" :maxlevel . 3)))
     ))

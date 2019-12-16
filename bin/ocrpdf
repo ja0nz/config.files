@@ -16,7 +16,7 @@ force = args["force"]
 
 def ocr(path, fname):
     if 'application/pdf' in mimetypes.guess_type(path):
-        print("Processing {} witch OCR!".format(path))
+        print("Processing {} with OCR!".format(path))
         try:
             ocrmypdf.ocr(
                 input_file=path,

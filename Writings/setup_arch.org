@@ -618,7 +618,8 @@ __EOF__
 
 *** Sound
 Install alsa-utils for the =alsamixer=
-Check if sound works:
+Check if sound works
+
 1. alsamixer
 2. Select sound card
 3. Increase sound

@@ -22,16 +22,27 @@
 
 (use-package clojure-mode
   :ensure t
+  :bind
+  (("s-<up>" . paredit-backward-up)
+   ("s-<down>" . paredit-forward-down)
+   ("s-<right>" . paredit-forward)
+   ("s-<left>" . paredit-backward))
   :hook (clojure-mode . (lambda ()
                           (clj-refactor-mode)
                           (parinfer-mode)
                           (yas-minor-mode)
-                          (cljr-add-keybindings-with-prefix "C-c C-m"))))
+                          (cljr-add-keybindings-with-prefix "C-c C-m")))
+  :init
+  (progn
+    (setq cider-cljs-lein-repl
+          "(do (require 'figwheel-sidecar.repl-api)
+                (figwheel-sidecar.repl-api/start-figwheel!)
+                (figwheel-sidecar.repl-api/cljs-repl))")))
 
 (use-package parinfer
   :ensure t
   :bind
-  (("C-," . parinfer-toggle-mode))
+  (("s-," . parinfer-toggle-mode))
   :config (setq parinfer-auto-switch-indent-mode t)
   :hook ((emacs-lisp-mode . parinfer-mode)
          (common-lisp-mode . parinfer-mode)
@@ -45,11 +56,13 @@
              ;; lispy         ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
              ;; paredit        ; Introduce some paredit commands.
              ;; smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
-             smart-yank))   ; Yank behavior depend on mode.
-    ))
+             smart-yank))))   ; Yank behavior depend on mode.
+
 
 ;; Purescript
 (prelude-install-search-engine "Pursuit" "https://pursuit.purescript.org/search?q=" "Search Pursuit: ")
+;; Umbrella
+(prelude-install-search-engine "Umbrella" "https://github.com/thi-ng/umbrella/search?q=" "Search Umbrella Repo: ")
 
 ;; ensure psc-ide package
 (use-package purescript-mode
@@ -60,7 +73,7 @@
                              (psc-ide-mode)
                              (company-mode)
                              (flycheck-mode)
-                             (turn-on-purescript-indentation))) )
+                             (turn-on-purescript-indentation))))
 
 ;; set Iosevka font only if it available
 (defun rag-set-face (frame)

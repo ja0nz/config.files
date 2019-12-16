@@ -9,6 +9,4 @@
 ;; Custom
 (global-set-key (kbd "C-c c") 'org-capture)
 (global-set-key (kbd "C-M-SPC") 'easy-mark)
-;;(global-set-key (kbd "s-SPC") 'easy-kill-help)
-(global-set-key (kbd "s-SPC") 'projectile-command-map)
 (global-set-key (kbd "C-x M-m") 'multi-term-dedicated-open)
