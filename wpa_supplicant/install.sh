@@ -2,7 +2,7 @@
 SOURCE=_wpa_supplicant
 TARGET=/etc/wpa_supplicant
 
-source $(readlink -f "$0" | rev | cut -d/ -f2- | rev)/../helpers.sh
+source $(readlink -f "$0" | xargs dirname)/../helpers.sh
 
 DECRYPT $SOURCE
 

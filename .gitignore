@@ -1,11 +1,17 @@
 # SSH
 _ssh/
 
+# GPG
+_gpg/
+
 # WPA supplicant
 _wpa_supplicant/
 
 # Fish
-_config.fish
+_config.fish/
 
 # Git
-.git
+.git/
+
+# Backup
+_backup/
