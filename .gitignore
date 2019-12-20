@@ -10,6 +10,9 @@ _wpa_supplicant/
 # Fish
 _config.fish/
 
+# luksHeader
+_luksHeader/
+
 # Git
 .git/
 
