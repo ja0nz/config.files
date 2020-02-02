@@ -75,6 +75,24 @@
                              (flycheck-mode)
                              (turn-on-purescript-indentation))))
 
+(use-package nix-mode
+  :mode "\\.nix\\'")
+
+;; Rust
+(use-package lsp-mode
+  :hook (rust-mode . lsp)
+  :commands lsp)
+
+(use-package rust-mode
+  :config (setq company-tooltip-align-annotations t)
+          (setq company-minimum-prefix-length 1)
+          (setq indent-tabs-mode nil)
+  :hook (rust-mode . (lambda ()
+                       (lsp)
+                       (company-mode)
+                       (flycheck-mode)
+                       (cargo-minor-mode))))
+
 ;; set Iosevka font only if it available
 (defun rag-set-face (frame)
   "Configure faces on frame creation"

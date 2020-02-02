@@ -29,19 +29,21 @@
          (org-shiftdown-final . windmove-down)
          (org-shiftleft-final . windmove-left)
          (org-shiftright-final . windmove-right))
+  :bind ("C-c M-j" . counsel-org-goto)
   :config
   (progn
     (setq org-agenda-files (list "~/emacs/gcal.org" "~/emacs/index.org")
           org-capture-templates
-          '(("a" "Appointment" entry (file  "~/emacs/gcal.org" )
+          '(("a" "Appointment" entry (file  "~/emacs/gcal.org")
              "* %?\n  :PROPERTIES:\n  :calendar-id: jan.peteler@gmail.com\n  :END:\n:org-gcal:\n%^T--%^T\n:END:\n")
             ("b" "Blog idea" entry (file+headline "~/emacs/index.org" "Blog Topics")
              "* %?\n%T" :prepend t)
             ("t" "To Do Item" entry (file+headline "~/emacs/index.org" "To Do")
              "* TODO %?\n%u" :prepend t)
-            ("n" "Note" entry (file+headline "~/emacs/index.org" "Notes")
+            ("r" "Resource" entry (file "~/emacs/index.org")
              "* %?\n%u" :prepend t))
           org-support-shift-select 'always
+          org-goto-interface 'outline-path-completion
+          org-outline-path-complete-in-steps nil
           org-refile-targets
-          '(("index.org" :maxlevel . 3)))
-    ))
+          '(("index.org" :maxlevel . 2)))))

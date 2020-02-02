@@ -3,7 +3,7 @@
 # Requires sudo!!!
 
 TARGET=/usr/share/fonts
-FONTS=(otf-firacode ttf-iosevka)
+FONTS=(otf-operatormono otf-firacode ttf-iosevka)
 
 for font in "${FONTS[@]}"
 do
