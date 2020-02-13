@@ -11,6 +11,6 @@ gpg --list-keys --with-colons 2> /dev/null | grep '^pub:' | cut -d: -f5 | while 
 	gpg -a --export $line > $line.pub.key
 done
 gpg --export-ownertrust > ownertrust.txt
-cd ..
+cd -
 
 ENCRYPT $SOURCE

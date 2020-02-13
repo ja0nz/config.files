@@ -14,6 +14,8 @@ for file in *.pub.key; do
 done
 gpg --import-ownertrust ownertrust.txt
 
+ln -sf $(pwd)/shared ~/.gnupg/
+
 # Previously
 #awk '!/^#/' ownertrust.txt | while read line; do
 #        KEY=$(echo $line | cut -d: -f1 | tail -c 17)

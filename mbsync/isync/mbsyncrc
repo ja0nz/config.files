@@ -1,0 +1,55 @@
+IMAPAccount jan@peteler.email
+Host borrelly.uberspace.de
+Port 993
+AuthMechs LOGIN
+User jan@peteler.email
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.gnupg/shared/mbsyncpass.gpg"
+SSLType IMAPS
+
+IMAPStore jan@peteler.email-remote
+Account jan@peteler.email
+
+MaildirStore jan@peteler.email-local
+Subfolders Verbatim
+# The trailing "/" is important
+Path ~/Maildir/jan@peteler.email/
+Inbox ~/Maildir/jan@peteler.email/Inbox
+
+Channel jan@peteler.email
+Master :jan@peteler.email-remote:
+Slave :jan@peteler.email-local:
+Patterns "INBOX" "Drafts" "Sent" "Trash" "Spam" "Archive"
+Create Slave
+Sync All
+Expunge Both
+SyncState * 
+
+# ================================================================================
+
+IMAPAccount mail@ja.nz
+Host borrelly.uberspace.de
+Port 993
+AuthMechs LOGIN
+User mail@ja.nz
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.gnupg/shared/mbsyncpass.gpg"
+SSLType IMAPS
+
+IMAPStore mail@ja.nz-remote
+Account mail@ja.nz
+
+MaildirStore mail@ja.nz-local
+Subfolders Verbatim
+# The trailing "/" is important
+Path ~/Maildir/mail@ja.nz/
+Inbox ~/Maildir/mail@ja.nz/Inbox
+
+Channel mail@ja.nz
+Master :mail@ja.nz-remote:
+Slave :mail@ja.nz-local:
+Patterns "INBOX" "Drafts" "Sent" "Trash" "Spam" "Archive"
+
+Create Slave
+Sync All
+Expunge Both
+SyncState *
+
