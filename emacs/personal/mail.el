@@ -1,5 +1,6 @@
 (require 'use-package)
 (require 'mu4e-context)
+(require 'smtpmail)
 
 (defvar xdg-config "~/.config"
   "The XDG config base directory.")
@@ -9,7 +10,7 @@
 
 (use-package mu4e
   :ensure nil
-  :ensure-system-package mu
+  :ensure-system-package (mu mbsync pandoc)
   :custom
   (mu4e-attachment-dir "~/Downloads")
   (mu4e-change-filenames-when-moving t)
@@ -21,7 +22,7 @@
   (mu4e-maildir "~/Maildir")
   (mu4e-context-policy 'pick-first)
   (mu4e-compose-context-policy nil)
-  ;;(mu4e-html2text-command "iconv -c -t utf-8 | pandoc -f html -t plain")
+  (mu4e-html2text-command "iconv -c -t utf-8 | pandoc -f html -t plain")
   (mu4e-contexts `( ,(make-mu4e-context
                       :name "Private"
                       :enter-func (lambda () (mu4e-message "Enter Private context"))
@@ -66,7 +67,7 @@
                               (smtpmail-smtp-service . 587)
                               (smtpmail-smtp-user . "mail@ja.nz")
                               (smtpmail-stream-type . starttls)))))
-  (mu4e-sent-messages-behavior 'delete)
+  ;;(mu4e-sent-messages-behavior 'delete) -> If use with GMAIL!
   (mu4e-update-interval 300)
   (mu4e-use-fancy-chars t)
   (mu4e-view-show-addresses t)
