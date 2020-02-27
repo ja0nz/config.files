@@ -32,13 +32,18 @@
   :bind ("C-c M-j" . counsel-org-goto)
   :config
   (progn
-    (setq org-agenda-files (list "~/emacs/gcal.org" "~/emacs/index.org")
+    (setq org-agenda-files (list "~/emacs/index.org")
           org-capture-templates
           '(;; ("a" "Appointment" entry (file  "~/emacs/gcal.org")
             ;;  "* %?\n  :PROPERTIES:\n  :calendar-id: jan.peteler@gmail.com\n  :END:\n:org-gcal:\n%^T--%^T\n:END:\n")
             ("b" "Blog idea" entry (file+headline "~/emacs/index.org" "Blog Topics")
              "* %?\n%T" :prepend t)
-            ("t" "To Do Item" entry (file+headline "~/emacs/index.org" "To Do")
+            ("l" "Timeline - current buffer!" entry (file+headline (lambda () (buffer-file-name)) "Timeline")
+             "* %t\n- %?" :prepend t)
+            ("c" "TODOs - current buffer!" entry (file+headline (lambda () (buffer-file-name)) "TODOs")
+             "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))"
+             :prepend t)
+            ("t" "TODOs" entry (file+headline "~/emacs/index.org" "TODOs")
              "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n"
              :prepend t)
             ("r" "Resource" entry (file "~/emacs/index.org")

@@ -48,9 +48,6 @@
     libnotify
     cryptsetup
     vim
-    # Node tooling
-    nodejs-12_x
-    rlwrap
   ];
 
   fonts.fonts = with pkgs; [
@@ -65,11 +62,6 @@
   programs.fish.enable = true;
 
   # List services that you want to enable:
-  
-  services.redshift = {
-    enable = true;
-  };
-  location.provider = "geoclue2";
   
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
@@ -109,7 +101,7 @@
   users.users.jan = {
     isNormalUser = true;
     shell = pkgs.fish;
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" "networkmanager" ]; # Enable ‘sudo’ for the user.
   };
 
   fileSystems."/home/jan" = {
@@ -129,6 +121,6 @@
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.stateVersion = "19.03"; # Did you read the comment?
+  system.stateVersion = "19.09"; # Did you read the comment?
 
 }
