@@ -16,20 +16,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "jan_nixos"; # Define your hostname.
-  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.wireless.networks = {
-    "World Wide Wurst" = {
-      pskRaw="c620180f02a575053cd33d6fa755ecc253799af486a3307e2a28496217ed35e9";
-    };
-    "WLAN-214862" = {
-      psk="97218221755010296377";
-    };
-    # free_wifi = {}; Sample public network
-  };
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  networking.networkmanager.enable = true;
 
   # Select internationalisation properties.
   i18n = {
@@ -41,48 +28,14 @@
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    wget
-    libnotify
-    cryptsetup
-    vim
-  ];
-
   fonts.fonts = with pkgs; [
     fira-code
     fira-code-symbols
   ];
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  programs.mtr.enable = true;
-  programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
-  programs.fish.enable = true;
-
-  # List services that you want to enable:
-  
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # Enable sound.
-  sound.enable = true;
-  sound.extraConfig =
-    ''
-      defaults.pcm.!card 1
-      defaults.ctl.!card 1
-    '';
   hardware.pulseaudio.enable = true;
+  # Enable because user shell is fish
+  programs.fish.enable = true;
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
@@ -93,7 +46,7 @@
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
 
-  # Enable the KDE Desktop Environment.
+  # Enable the XFCE Desktop Environment.
   services.xserver.displayManager.startx.enable = true;
   services.xserver.desktopManager.xfce.enable = true;
 
@@ -101,7 +54,7 @@
   users.users.jan = {
     isNormalUser = true;
     shell = pkgs.fish;
-    extraGroups = [ "wheel" "networkmanager" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" "networkmanager" ];
   };
 
   fileSystems."/home/jan" = {
@@ -111,7 +64,6 @@
      enable = true;
      blkDev = "/dev/sda5";
      label = "home";
-     # keyFile = "/root/hkey";
     };
   };
 
@@ -122,5 +74,48 @@
   # servers. You should change this only after NixOS release notes say you
   # should.
   system.stateVersion = "19.09"; # Did you read the comment?
+  
+
+  ####################### INACTIVE ###########################
+  
+  # List packages installed in system profile. To search, run:
+  #environment.systemPackages = with pkgs; [
+  #  wget
+  #  libnotify
+  #  cryptsetup
+  #  vim
+  #];
+  
+  # Configure network proxy if necessary
+  # networking.proxy.default = "http://user:password@proxy:port/";
+  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+
+  # Some programs need SUID wrappers, can be configured further or are
+  # started in user sessions.
+  #programs.mtr.enable = true;
+  #programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
+
+  # Enable ALSA sound (pulseaudio does the job better)
+  # sound.enable = true;
+  # sound.extraConfig =
+  #  ''
+  #    defaults.pcm.!card 1
+  #    defaults.ctl.!card 1
+  #  '';
+ 
+  # List services that you want to enable:
+  
+  # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
+
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
+
+  # Enable CUPS to print documents.
+  # services.printing.enable = true;
+
 
 }

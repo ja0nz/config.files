@@ -1,8 +1,11 @@
 [
     "firefox"
     "htop"
+    "wget"
+    "mtr"
+    "cryptsetup"
+    "libnotify"
     "emacs"
-    "neovim"
     "ripgrep"
     "fzf"
     "bat"
@@ -14,6 +17,7 @@
     "pandoc"
     "rlwrap"
     "any-nix-shell"
+    "slock"
     # Build stuff
     "direnv"
     "graphviz"

@@ -656,9 +656,29 @@ according to yourc needs!
 
 This will finally install nixos on your system:
 =nixos-install=
-
-** Nixos commands
-nixos-rebuild switch
-nix-env --list-generations
-nix-collect-garbage
-nix search
+** Networking
+*** WPA Supplicant
+Either manage networking by WPA Supplicant manually in /etc/nixos/configuration.nix
+#+BEGIN_SRC nix
+networking.wireless.enable = true;
+networking.wireless.networks = {
+  "Some Network" = {
+    pskRaw="123"; # generate RAW with > wpa_passphrase ESSID PSK
+    psk="123";
+   };
+   free.wifi = {
+     "Some Free Hotspot = {};
+   };
+};
+#+END_SRC
+While this low level config seems nice, a user must have root access to add a network. So, this setup is only suitable for a single user env.
+*** Network Manager
+Or manage your networks by the network manager
+#+BEGIN_SRC nix
+networking.networkmanager.enable = true;
+# Add user to networkmanager group
+users.users.alice.extraGroups = [ "networkmanager" ];
+# If you use home manager you might enable the networkmanager applet too
+programs.home-manager.enable = true;
+#+END_SRC
+All your networks will be stored in /etc/NetworkManager/system-connections
