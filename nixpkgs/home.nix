@@ -14,8 +14,8 @@
       (self: super: {
         # Deprecate nextcloud client
         #nextcloud-client = super.nextcloud-client.override {
-	#  qtkeychain = pkgs.gnome3.libgnome-keyring;
-	#};
+	      #  qtkeychain = pkgs.gnome3.libgnome-keyring;
+	      #};
       })
     ];
   };
@@ -42,7 +42,8 @@
   programs = {
     # Let Home Manager install and manage itself.
     home-manager.enable = true;
-    # fish = import ./fish.nix;  Waiting for the next home manager release
+    # fish = import ./fish.nix;  Next release
+    # kitty = import ./kitty.nix; Next release
     rofi = {
       enable = true;
       theme = "config.files/rofi/material";
@@ -58,7 +59,7 @@
       enable = true;
       settings = {
         no-comments = false;
-	s2k-cipher-algo = "AES128";
+	      s2k-cipher-algo = "AES128";
       };
     };
     neovim = { 
@@ -70,11 +71,10 @@
         set expandtab       " tabs are space
         set autoindent
         set copyindent      " copy indent from the previous line
-	'';
+        '';
       viAlias = true;
       vimAlias = true;
-    };
-
+      };
   };
  
   services = {
@@ -93,3 +93,4 @@
   xdg.enable = true;
   
 }
+
